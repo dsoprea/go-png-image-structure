@@ -22,10 +22,10 @@ var (
 
 // ChunkSlice encapsulates a slice of chunks.
 type ChunkSlice struct {
-    chunks []Chunk
+    chunks []*Chunk
 }
 
-func NewChunkSlice(chunks []Chunk) *ChunkSlice {
+func NewChunkSlice(chunks []*Chunk) *ChunkSlice {
     return &ChunkSlice{
         chunks: chunks,
     }
@@ -36,7 +36,7 @@ func (cs *ChunkSlice) String() string {
 }
 
 // Chunks exposes the actual slice.
-func (cs *ChunkSlice) Chunks() []Chunk {
+func (cs *ChunkSlice) Chunks() []*Chunk {
     return cs.chunks
 }
 
@@ -59,10 +59,24 @@ func (cs *ChunkSlice) Write(w io.Writer) (err error) {
     return nil
 }
 
+// Index returns a map of chunk types to chunk slices, grouping all like chunks.
+func (cs *ChunkSlice) Index() (index map[string][]*Chunk) {
+    index = make(map[string][]*Chunk)
+    for _, c := range cs.chunks {
+        if grouped, found := index[c.Type]; found == true {
+            index[c.Type] = append(grouped, c)
+        } else {
+            index[c.Type] = []*Chunk { c }
+        }
+    }
+
+    return index
+}
+
 
 // PngSplitter hosts the princpal `Split()` method uses by `bufio.Scanner`.
 type PngSplitter struct {
-    chunks []Chunk
+    chunks []*Chunk
     currentOffset int
 }
 
@@ -72,7 +86,7 @@ func (ps *PngSplitter) Chunks() *ChunkSlice {
 
 func NewPngSplitter() *PngSplitter {
     return &PngSplitter{
-        chunks: make([]Chunk, 0),
+        chunks: make([]*Chunk, 0),
     }
 }
 
@@ -207,7 +221,7 @@ func (ps *PngSplitter) Split(data []byte, atEOF bool) (advance int, token []byte
         content := make([]byte, length)
         copy(content, data[8:8+length])
 
-        c := Chunk{
+        c := &Chunk{
             Length: length,
             Type: type_,
             Data: content,

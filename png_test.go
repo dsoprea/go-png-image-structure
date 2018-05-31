@@ -3,6 +3,8 @@ package pngstructure
 import (
     "testing"
     "bytes"
+    "path"
+    "reflect"
 
     "github.com/dsoprea/go-logging"
 )
@@ -78,4 +80,40 @@ func ExampleChunk_Write() {
 
     data := c.Bytes()
     data = data
+}
+
+func TestChunkSlice_Index(t *testing.T) {
+    filepath := path.Join(assetsPath, "Selection_058.png")
+
+    cs, err := ParseFileStructure(filepath)
+    log.PanicIf(err)
+
+    index := cs.Index()
+
+    tallies := make(map[string]int)
+    for key, chunks := range index {
+        tallies[key] = len(chunks)
+    }
+
+    expected := map[string]int {
+        "IDAT": 222,
+        "IEND": 1,
+        "IHDR": 1,
+        "pHYs": 1,
+        "tIME": 1,
+    }
+
+    if reflect.DeepEqual(tallies, expected) != true {
+        t.Fatalf("index not correct")
+    }
+}
+
+func ExampleChunkSlice_Index() {
+    filepath := path.Join(assetsPath, "Selection_058.png")
+
+    cs, err := ParseFileStructure(filepath)
+    log.PanicIf(err)
+
+    index := cs.Index()
+    index = index
 }
