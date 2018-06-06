@@ -4,11 +4,15 @@ import (
     "os"
     "path"
 
+    "encoding/binary"
+
     "github.com/dsoprea/go-logging"
 )
 
 var (
     assetsPath = ""
+
+    TestDefaultByteOrder = binary.BigEndian
 )
 
 func init() {
