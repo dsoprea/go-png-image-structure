@@ -9,14 +9,17 @@ import (
     "encoding/binary"
 
     "github.com/dsoprea/go-logging"
+    "github.com/dsoprea/go-exif"
 )
 
 var (
     PngSignature = [8]byte { 137, 'P', 'N', 'G', '\r', '\n', 26, '\n' }
+    EXifChunkType = "eXIf"
 )
 
 var (
     ErrNotPng = errors.New("not png data")
+    ErrNoExif = errors.New("file does not have EXIF")
 )
 
 
@@ -71,6 +74,43 @@ func (cs *ChunkSlice) Index() (index map[string][]*Chunk) {
     }
 
     return index
+}
+
+// FindExif returns the the segment that hosts the EXIF data.
+func (cs *ChunkSlice) FindExif() (chunk *Chunk, err error) {
+    defer func() {
+        if state := recover(); state != nil {
+            err = log.Wrap(state.(error))
+        }
+    }()
+
+    index := cs.Index()
+
+    if chunks, found := index[EXifChunkType]; found == true {
+        return chunks[0], nil
+    }
+
+    log.Panic(ErrNoExif)
+
+    // Never called.
+    return nil, nil
+}
+
+// Exif returns an `exif.Ifd` instance with the existing tags.
+func (cs *ChunkSlice) Exif() (rootIfd *exif.Ifd, err error) {
+    defer func() {
+        if state := recover(); state != nil {
+            err = log.Wrap(state.(error))
+        }
+    }()
+
+    chunk, err := cs.FindExif()
+    log.PanicIf(err)
+
+    _, index, err := exif.Collect(chunk.Data)
+    log.PanicIf(err)
+
+    return index.RootIfd, nil
 }
 
 

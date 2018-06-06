@@ -5,8 +5,12 @@ import (
     "bytes"
     "path"
     "reflect"
+    "fmt"
+
+    "io/ioutil"
 
     "github.com/dsoprea/go-logging"
+    // "github.com/dsoprea/go-exif"
 )
 
 func TestChunk_Bytes(t *testing.T) {
@@ -106,6 +110,100 @@ func TestChunkSlice_Index(t *testing.T) {
     if reflect.DeepEqual(tallies, expected) != true {
         t.Fatalf("index not correct")
     }
+}
+
+func TestChunkSlice_FindExif_Miss(t *testing.T) {
+    defer func() {
+        if state := recover(); state != nil {
+            err := log.Wrap(state.(error))
+            log.PrintErrorf(err, "Test failure.")
+        }
+    }()
+
+    filepath := path.Join(assetsPath, "Selection_058.png")
+
+    cs, err := ParseFileStructure(filepath)
+    log.PanicIf(err)
+
+    _, err = cs.FindExif()
+
+    if err == nil {
+        t.Fatalf("expected error for missing EXIF")
+    } else if log.Is(err, ErrNoExif) == false {
+        log.Panic(err)
+    }
+}
+
+func TestChunkSlice_FindExif_Hit(t *testing.T) {
+    defer func() {
+        if state := recover(); state != nil {
+            err := log.Wrap(state.(error))
+            log.PrintErrorf(err, "Test failure.")
+        }
+    }()
+
+    filepath := path.Join(assetsPath, "pngexif.png")
+
+    cs, err := ParseFileStructure(filepath)
+    log.PanicIf(err)
+
+    exifChunk, err := cs.FindExif()
+    log.PanicIf(err)
+
+    exifFilepath := fmt.Sprintf("%s.exif", filepath)
+
+    expectedExifData, err := ioutil.ReadFile(exifFilepath)
+    log.PanicIf(err)
+
+    if bytes.Compare(exifChunk.Data, expectedExifData) != 0 {
+        t.Fatalf("Exif not extract correctly.")
+    }
+}
+
+// TODO(dustin): !! The test-file from the libpng project is actually broken (no next-IFD uint32 at the bottom of the EXIF IFD).
+// func TestChunkSlice_Exif(t *testing.T) {
+//     defer func() {
+//         if state := recover(); state != nil {
+//             err := log.Wrap(state.(error))
+//             log.PrintErrorf(err, "Test failure.")
+//         }
+//     }()
+
+//     filepath := path.Join(assetsPath, "pngexif.png")
+
+//     cs, err := ParseFileStructure(filepath)
+//     log.PanicIf(err)
+
+//     rootIfd, err := cs.Exif()
+//     log.PanicIf(err)
+
+//     if rootIfd.Ii != exif.RootIi {
+//         t.Fatalf("root-IFD not parsed correctly")
+//     }
+// }
+
+func ExampleChunkSlice_Exif() {
+    filepath := path.Join(assetsPath, "pngexif.png")
+
+    cs, err := ParseFileStructure(filepath)
+    log.PanicIf(err)
+
+    rootIfd, err := cs.Exif()
+    log.PanicIf(err)
+
+    rootIfd = rootIfd
+}
+
+func ExampleChunkSlice_FindExif() {
+    filepath := path.Join(assetsPath, "pngexif.png")
+
+    cs, err := ParseFileStructure(filepath)
+    log.PanicIf(err)
+
+    exifChunk, err := cs.FindExif()
+    log.PanicIf(err)
+
+    exifChunk = exifChunk
 }
 
 func ExampleChunkSlice_Index() {
