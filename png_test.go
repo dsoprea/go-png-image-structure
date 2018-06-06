@@ -196,10 +196,10 @@ func TestChunkSlice_SetExif_Chunk(t *testing.T) {
 
 	ib := exif.NewIfdBuilder(exif.RootIi, TestDefaultByteOrder)
 
-	err := ib.AddFromConfigWithName("ImageWidth", []uint32{11})
+	err := ib.AddStandardWithName("ImageWidth", []uint32{11})
 	log.PanicIf(err)
 
-	err = ib.AddFromConfigWithName("ImageLength", []uint32{22})
+	err = ib.AddStandardWithName("ImageLength", []uint32{22})
 	log.PanicIf(err)
 
 	// Create PNG.
@@ -246,10 +246,10 @@ func ExampleChunkSlice_SetExif() {
 
 	ib := exif.NewIfdBuilder(exif.RootIi, TestDefaultByteOrder)
 
-	err := ib.AddFromConfigWithName("ImageWidth", []uint32{11})
+	err := ib.AddStandardWithName("ImageWidth", []uint32{11})
 	log.PanicIf(err)
 
-	err = ib.AddFromConfigWithName("ImageLength", []uint32{22})
+	err = ib.AddStandardWithName("ImageLength", []uint32{22})
 	log.PanicIf(err)
 
 	// Add/replace EXIF into PNG (overwrite existing).
