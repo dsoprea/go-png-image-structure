@@ -11,6 +11,8 @@ import (
 
 var (
     assetsPath = ""
+    testBasicFilepath = ""
+    testExifFilepath = ""
 
     TestDefaultByteOrder = binary.BigEndian
 )
@@ -22,4 +24,7 @@ func init() {
     }
 
     assetsPath = path.Join(goPath, "src", "github.com", "dsoprea", "go-png-image-structure", "assets")
+
+    testBasicFilepath = path.Join(assetsPath, "libpng.png")
+    testExifFilepath = path.Join(assetsPath, "exif.png")
 }
