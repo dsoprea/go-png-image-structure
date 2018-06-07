@@ -158,27 +158,32 @@ func TestChunkSlice_FindExif_Hit(t *testing.T) {
 	}
 }
 
-// TODO(dustin): !! Write test for ConstructExifBuilder
+func TestChunkSlice_Exif(t *testing.T) {
+    defer func() {
+        if state := recover(); state != nil {
+            err := log.Wrap(state.(error))
+            log.PrintErrorf(err, "Test failure.")
+        }
+    }()
 
-// TODO(dustin): !! The test-file from the libpng project is actually broken (no next-IFD uint32 at the bottom of the EXIF IFD).
-// func TestChunkSlice_Exif(t *testing.T) {
-//     defer func() {
-//         if state := recover(); state != nil {
-//             err := log.Wrap(state.(error))
-//             log.PrintErrorf(err, "Test failure.")
-//         }
-//     }()
+    cs, err := ParseFileStructure(testExifFilepath)
+    log.PanicIf(err)
 
-//     cs, err := ParseFileStructure(testBasicFilepath)
-//     log.PanicIf(err)
+    _, rootIfd, err := cs.Exif()
+    log.PanicIf(err)
 
-//     rootIfd, err := cs.Exif()
-//     log.PanicIf(err)
+    tags := rootIfd.Entries
 
-//     if rootIfd.Ii != exif.RootIi {
-//         t.Fatalf("root-IFD not parsed correctly")
-//     }
-// }
+    if rootIfd.Ii != exif.RootIi {
+        t.Fatalf("root-IFD not parsed correctly")
+    } else if len(tags) != 2 {
+        t.Fatalf("incorrect number of encoded tags")
+    } else if tags[0].TagId != 0x0100 {
+        t.Fatalf("first tag is not correct")
+    } else if tags[1].TagId != 0x0101 {
+        t.Fatalf("second tag is not correct")
+    }
+}
 
 func TestChunkSlice_SetExif_Existing(t *testing.T) {
     defer func() {
@@ -306,8 +311,6 @@ func TestChunkSlice_SetExif_Chunk(t *testing.T) {
 	}
 }
 
-// TODO(dustin): !! Add example to update existing.
-
 func ExampleChunkSlice_SetExif() {
 	// Build EXIF.
 
@@ -396,4 +399,126 @@ func TestChunk_Crc32_Cycle(t *testing.T) {
     if c.CheckCrc32() != false {
         t.Fatalf("CRC check didn't fail but should've")
     }
+}
+
+func TestChunkSlice_ConstructExifBuilder(t *testing.T) {
+    defer func() {
+        if state := recover(); state != nil {
+            err := log.Wrap(state.(error))
+            log.PrintErrorf(err, "Test failure.")
+        }
+    }()
+
+    cs, err := ParseFileStructure(testExifFilepath)
+    log.PanicIf(err)
+
+
+    // Add a new tag to the additional EXIF.
+
+    rootIb, err := cs.ConstructExifBuilder()
+    log.PanicIf(err)
+
+    err = rootIb.SetStandardWithName("ImageLength", []uint32{44})
+    log.PanicIf(err)
+
+    err = rootIb.AddStandardWithName("BitsPerSample", []uint16{33})
+    log.PanicIf(err)
+
+
+    // Update the image.
+
+    err = cs.SetExif(rootIb)
+    log.PanicIf(err)
+
+    b := new(bytes.Buffer)
+
+    err = cs.Write(b)
+    log.PanicIf(err)
+
+    updatedImageData := b.Bytes()
+
+
+    // Re-parse.
+
+    cs, err = ParseBytesStructure(updatedImageData)
+    log.PanicIf(err)
+
+    _, rootIfd, err := cs.Exif()
+    log.PanicIf(err)
+
+
+    tags := rootIfd.Entries
+
+    v1, err := rootIfd.TagValue(tags[0])
+    log.PanicIf(err)
+
+    v2, err := rootIfd.TagValue(tags[1])
+    log.PanicIf(err)
+
+    v3, err := rootIfd.TagValue(tags[2])
+    log.PanicIf(err)
+
+    if rootIfd.Ii != exif.RootIi {
+        t.Fatalf("root-IFD not parsed correctly")
+    } else if len(tags) != 3 {
+        t.Fatalf("incorrect number of encoded tags")
+    } else if tags[0].TagId != 0x0100 || reflect.DeepEqual(v1.([]uint32), []uint32 { 11 }) != true {
+        t.Fatalf("first tag is not correct")
+    } else if tags[1].TagId != 0x0101 || reflect.DeepEqual(v2.([]uint32), []uint32 { 44 }) != true {
+        t.Fatalf("second tag is not correct")
+    } else if tags[2].TagId != 0x0102 || reflect.DeepEqual(v3.([]uint16), []uint16 { 33 }) != true {
+        t.Fatalf("third tag is not correct")
+    }
+}
+
+func ExampleChunkSlice_ConstructExifBuilder() {
+    cs, err := ParseFileStructure(testExifFilepath)
+    log.PanicIf(err)
+
+
+    // Add a new tag to the additional EXIF.
+
+    rootIb, err := cs.ConstructExifBuilder()
+    log.PanicIf(err)
+
+    err = rootIb.SetStandardWithName("ImageLength", []uint32{44})
+    log.PanicIf(err)
+
+    err = rootIb.AddStandardWithName("BitsPerSample", []uint16{33})
+    log.PanicIf(err)
+
+
+    // Update the image.
+
+    err = cs.SetExif(rootIb)
+    log.PanicIf(err)
+
+    b := new(bytes.Buffer)
+
+    err = cs.Write(b)
+    log.PanicIf(err)
+
+    updatedImageData := b.Bytes()
+
+
+    // Re-parse.
+
+    cs, err = ParseBytesStructure(updatedImageData)
+    log.PanicIf(err)
+
+    _, rootIfd, err := cs.Exif()
+    log.PanicIf(err)
+
+
+    for i, ite := range rootIfd.Entries {
+        value, err := rootIfd.TagValue(ite)
+        log.PanicIf(err)
+
+        fmt.Printf("%d: (0x%04x) %v\n", i, ite.TagId, value)
+    }
+
+    // Output:
+    // 0: (0x0100) [11]
+    // 1: (0x0101) [44]
+    // 2: (0x0102) [33]
 }
