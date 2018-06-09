@@ -63,3 +63,7 @@ func DumpBytesClauseToString(data []byte) string {
 
     return b.String()
 }
+
+func IsPng(data []byte) bool {
+    return bytes.Compare(data[:len(PngSignature)], PngSignature[:]) == 0
+}
