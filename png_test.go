@@ -169,7 +169,7 @@ func TestChunkSlice_Exif(t *testing.T) {
     cs, err := ParseFileStructure(testExifFilepath)
     log.PanicIf(err)
 
-    _, rootIfd, err := cs.Exif()
+    rootIfd, _, err := cs.Exif()
     log.PanicIf(err)
 
     tags := rootIfd.Entries
@@ -443,7 +443,7 @@ func TestChunkSlice_ConstructExifBuilder(t *testing.T) {
     cs, err = ParseBytesStructure(updatedImageData)
     log.PanicIf(err)
 
-    _, rootIfd, err := cs.Exif()
+    rootIfd, _, err := cs.Exif()
     log.PanicIf(err)
 
 
@@ -506,7 +506,7 @@ func ExampleChunkSlice_ConstructExifBuilder() {
     cs, err = ParseBytesStructure(updatedImageData)
     log.PanicIf(err)
 
-    _, rootIfd, err := cs.Exif()
+    rootIfd, _, err := cs.Exif()
     log.PanicIf(err)
 
 

@@ -117,20 +117,20 @@ func (cs *ChunkSlice) FindExif() (chunk *Chunk, err error) {
 }
 
 // Exif returns an `exif.Ifd` instance with the existing tags.
-func (cs *ChunkSlice) Exif() (chunk *Chunk, rootIfd *exif.Ifd, err error) {
+func (cs *ChunkSlice) Exif() (rootIfd *exif.Ifd, data []byte, err error) {
     defer func() {
         if state := recover(); state != nil {
             err = log.Wrap(state.(error))
         }
     }()
 
-    chunk, err = cs.FindExif()
+    chunk, err := cs.FindExif()
     log.PanicIf(err)
 
     _, index, err := exif.Collect(chunk.Data)
     log.PanicIf(err)
 
-    return chunk, index.RootIfd, nil
+    return index.RootIfd, chunk.Data, nil
 }
 
 // ConstructExifBuilder returns an `exif.IfdBuilder` instance (needed for
@@ -142,10 +142,10 @@ func (cs *ChunkSlice) ConstructExifBuilder() (rootIb *exif.IfdBuilder, err error
         }
     }()
 
-    chunk, rootIfd, err := cs.Exif()
+    rootIfd, data, err := cs.Exif()
     log.PanicIf(err)
 
-    itevr := exif.NewIfdTagEntryValueResolver(chunk.Data, rootIfd.ByteOrder)
+    itevr := exif.NewIfdTagEntryValueResolver(data, rootIfd.ByteOrder)
     ib := exif.NewIfdBuilderFromExistingChain(rootIfd, itevr)
 
     return ib, nil
