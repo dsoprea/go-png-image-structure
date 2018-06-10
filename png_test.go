@@ -47,6 +47,8 @@ func ExampleChunk_Bytes() {
 
 	data := c.Bytes()
 	data = data
+
+    // Output:
 }
 
 func TestChunk_Write(t *testing.T) {
@@ -84,6 +86,8 @@ func ExampleChunk_Write() {
 
 	data := c.Bytes()
 	data = data
+
+    // Output:
 }
 
 func TestChunkSlice_Index(t *testing.T) {
@@ -347,18 +351,22 @@ func ExampleChunkSlice_SetExif() {
 	// Write to a `bytes.Buffer`.
 	err = cs.Write(b)
 	log.PanicIf(err)
+
+    // Output:
 }
 
 func ExampleChunkSlice_Exif() {
     pmp := NewPngMediaParser()
 
-	cs, err := pmp.ParseFile(testBasicFilepath)
+	cs, err := pmp.ParseFile(testExifFilepath)
 	log.PanicIf(err)
 
-	_, rootIfd, err := cs.Exif()
+	rootIfd, _, err := cs.Exif()
 	log.PanicIf(err)
 
 	rootIfd = rootIfd
+
+    // Output:
 }
 
 func ExampleChunkSlice_FindExif() {
@@ -371,6 +379,8 @@ func ExampleChunkSlice_FindExif() {
 	log.PanicIf(err)
 
 	exifChunk = exifChunk
+
+    // Output:
 }
 
 func ExampleChunkSlice_Index() {
@@ -383,6 +393,8 @@ func ExampleChunkSlice_Index() {
 
 	index := cs.Index()
 	index = index
+
+    // Output:
 }
 
 func TestChunk_Crc32_Cycle(t *testing.T) {
@@ -591,6 +603,8 @@ func ExampleChunkSlice_Write() {
 
     err = cs.Write(b)
     log.PanicIf(err)
+
+    // Output:
 }
 
 func TestChunkSlice_Write(t *testing.T) {
