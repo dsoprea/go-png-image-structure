@@ -10,7 +10,9 @@ import (
 func TestChunkDecoder_decodeIHDR(t *testing.T) {
     filepath := path.Join(assetsPath, "Selection_058.png")
 
-    cs, err := ParseFileStructure(filepath)
+    pmp := NewPngMediaParser()
+
+    cs, err := pmp.ParseFile(filepath)
     log.PanicIf(err)
 
     index := cs.Index()
@@ -45,7 +47,9 @@ func TestChunkDecoder_decodeIHDR(t *testing.T) {
 func ExampleChunkDecoder_Decode() {
     filepath := path.Join(assetsPath, "Selection_058.png")
 
-    cs, err := ParseFileStructure(filepath)
+    pmp := NewPngMediaParser()
+
+    cs, err := pmp.ParseFile(filepath)
     log.PanicIf(err)
 
     index := cs.Index()

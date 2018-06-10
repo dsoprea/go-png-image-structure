@@ -9,7 +9,15 @@ import (
     "github.com/dsoprea/go-logging"
 )
 
-func ParseSegments(r io.Reader, size int) (chunks *ChunkSlice, err error) {
+
+type PngMediaParser struct {
+}
+
+func NewPngMediaParser() *PngMediaParser {
+    return new(PngMediaParser)
+}
+
+func (pmp *PngMediaParser) Parse(r io.Reader, size int) (chunks *ChunkSlice, err error) {
     defer func() {
         if state := recover(); state != nil {
             err = log.Wrap(state.(error))
@@ -35,7 +43,7 @@ func ParseSegments(r io.Reader, size int) (chunks *ChunkSlice, err error) {
     return ps.Chunks(), nil
 }
 
-func ParseFileStructure(filepath string) (chunks *ChunkSlice, err error) {
+func (pmp *PngMediaParser) ParseFile(filepath string) (chunks *ChunkSlice, err error) {
     defer func() {
         if state := recover(); state != nil {
             err = log.Wrap(state.(error))
@@ -50,13 +58,13 @@ func ParseFileStructure(filepath string) (chunks *ChunkSlice, err error) {
 
     size := stat.Size()
 
-    chunks, err = ParseSegments(f, int(size))
+    chunks, err = pmp.Parse(f, int(size))
     log.PanicIf(err)
 
     return chunks, nil
 }
 
-func ParseBytesStructure(data []byte) (chunks *ChunkSlice, err error) {
+func (pmp *PngMediaParser) ParseBytes(data []byte) (chunks *ChunkSlice, err error) {
     defer func() {
         if state := recover(); state != nil {
             err = log.Wrap(state.(error))
@@ -65,8 +73,12 @@ func ParseBytesStructure(data []byte) (chunks *ChunkSlice, err error) {
 
     b := bytes.NewBuffer(data)
 
-    chunks, err = ParseSegments(b, len(data))
+    chunks, err = pmp.Parse(b, len(data))
     log.PanicIf(err)
 
     return chunks, nil
+}
+
+func (pmp *PngMediaParser) LooksLikeFormat(data []byte) bool {
+    return bytes.Compare(data[:len(PngSignature)], PngSignature[:]) == 0
 }

@@ -89,7 +89,9 @@ func ExampleChunk_Write() {
 func TestChunkSlice_Index(t *testing.T) {
 	filepath := path.Join(assetsPath, "Selection_058.png")
 
-	cs, err := ParseFileStructure(filepath)
+    pmp := NewPngMediaParser()
+
+	cs, err := pmp.ParseFile(filepath)
 	log.PanicIf(err)
 
 	index := cs.Index()
@@ -122,7 +124,9 @@ func TestChunkSlice_FindExif_Miss(t *testing.T) {
 
 	filepath := path.Join(assetsPath, "Selection_058.png")
 
-	cs, err := ParseFileStructure(filepath)
+    pmp := NewPngMediaParser()
+
+	cs, err := pmp.ParseFile(filepath)
 	log.PanicIf(err)
 
 	_, err = cs.FindExif()
@@ -142,7 +146,9 @@ func TestChunkSlice_FindExif_Hit(t *testing.T) {
 		}
 	}()
 
-	cs, err := ParseFileStructure(testBasicFilepath)
+    pmp := NewPngMediaParser()
+
+	cs, err := pmp.ParseFile(testBasicFilepath)
 	log.PanicIf(err)
 
 	exifChunk, err := cs.FindExif()
@@ -166,7 +172,9 @@ func TestChunkSlice_Exif(t *testing.T) {
         }
     }()
 
-    cs, err := ParseFileStructure(testExifFilepath)
+    pmp := NewPngMediaParser()
+
+    cs, err := pmp.ParseFile(testExifFilepath)
     log.PanicIf(err)
 
     rootIfd, _, err := cs.Exif()
@@ -207,7 +215,9 @@ func TestChunkSlice_SetExif_Existing(t *testing.T) {
 
     // Replace into PNG.
 
-    cs, err := ParseFileStructure(testBasicFilepath)
+    pmp := NewPngMediaParser()
+
+    cs, err := pmp.ParseFile(testBasicFilepath)
     log.PanicIf(err)
 
     err = cs.SetExif(ib)
@@ -223,7 +233,7 @@ func TestChunkSlice_SetExif_Existing(t *testing.T) {
 
     // Re-parse.
 
-    cs, err = ParseBytesStructure(updatedImageData)
+    cs, err = pmp.ParseBytes(updatedImageData)
     log.PanicIf(err)
 
     exifChunk, err := cs.FindExif()
@@ -324,7 +334,9 @@ func ExampleChunkSlice_SetExif() {
 
 	// Add/replace EXIF into PNG (overwrite existing).
 
-	cs, err := ParseFileStructure(testBasicFilepath)
+    pmp := NewPngMediaParser()
+
+	cs, err := pmp.ParseFile(testBasicFilepath)
 	log.PanicIf(err)
 
 	err = cs.SetExif(ib)
@@ -338,7 +350,9 @@ func ExampleChunkSlice_SetExif() {
 }
 
 func ExampleChunkSlice_Exif() {
-	cs, err := ParseFileStructure(testBasicFilepath)
+    pmp := NewPngMediaParser()
+
+	cs, err := pmp.ParseFile(testBasicFilepath)
 	log.PanicIf(err)
 
 	_, rootIfd, err := cs.Exif()
@@ -348,7 +362,9 @@ func ExampleChunkSlice_Exif() {
 }
 
 func ExampleChunkSlice_FindExif() {
-	cs, err := ParseFileStructure(testBasicFilepath)
+    pmp := NewPngMediaParser()
+
+	cs, err := pmp.ParseFile(testBasicFilepath)
 	log.PanicIf(err)
 
 	exifChunk, err := cs.FindExif()
@@ -360,7 +376,9 @@ func ExampleChunkSlice_FindExif() {
 func ExampleChunkSlice_Index() {
 	filepath := path.Join(assetsPath, "Selection_058.png")
 
-	cs, err := ParseFileStructure(filepath)
+    pmp := NewPngMediaParser()
+
+	cs, err := pmp.ParseFile(filepath)
 	log.PanicIf(err)
 
 	index := cs.Index()
@@ -409,7 +427,9 @@ func TestChunkSlice_ConstructExifBuilder(t *testing.T) {
         }
     }()
 
-    cs, err := ParseFileStructure(testExifFilepath)
+    pmp := NewPngMediaParser()
+
+    cs, err := pmp.ParseFile(testExifFilepath)
     log.PanicIf(err)
 
 
@@ -440,7 +460,9 @@ func TestChunkSlice_ConstructExifBuilder(t *testing.T) {
 
     // Re-parse.
 
-    cs, err = ParseBytesStructure(updatedImageData)
+    pmp = NewPngMediaParser()
+
+    cs, err = pmp.ParseBytes(updatedImageData)
     log.PanicIf(err)
 
     rootIfd, _, err := cs.Exif()
@@ -472,7 +494,9 @@ func TestChunkSlice_ConstructExifBuilder(t *testing.T) {
 }
 
 func ExampleChunkSlice_ConstructExifBuilder() {
-    cs, err := ParseFileStructure(testExifFilepath)
+    pmp := NewPngMediaParser()
+
+    cs, err := pmp.ParseFile(testExifFilepath)
     log.PanicIf(err)
 
 
@@ -503,7 +527,9 @@ func ExampleChunkSlice_ConstructExifBuilder() {
 
     // Re-parse.
 
-    cs, err = ParseBytesStructure(updatedImageData)
+    pmp = NewPngMediaParser()
+
+    cs, err = pmp.ParseBytes(updatedImageData)
     log.PanicIf(err)
 
     rootIfd, _, err := cs.Exif()
@@ -521,4 +547,101 @@ func ExampleChunkSlice_ConstructExifBuilder() {
     // 0: (0x0100) [11]
     // 1: (0x0101) [44]
     // 2: (0x0102) [33]
+}
+
+func TestPngSplitter_Write(t *testing.T) {
+    defer func() {
+        if state := recover(); state != nil {
+            err := log.Wrap(state.(error))
+            log.PrintError(err)
+        }
+    }()
+
+    filepath := path.Join(assetsPath, "Selection_058.png")
+
+    original, err := ioutil.ReadFile(filepath)
+    log.PanicIf(err)
+
+    pmp := NewPngMediaParser()
+
+    ps, err := pmp.ParseBytes(original)
+    log.PanicIf(err)
+
+    b := new(bytes.Buffer)
+
+    err = ps.Write(b)
+    log.PanicIf(err)
+
+    written := b.Bytes()
+
+    if bytes.Compare(written, original) != 0 {
+        t.Fatalf("written bytes (%d) do not equal read bytes (%d)", len(written), len(original))
+    }
+}
+
+func ExampleChunkSlice_Write() {
+    filepath := path.Join(assetsPath, "Selection_058.png")
+
+    pmp := NewPngMediaParser()
+
+    cs, err := pmp.ParseFile(filepath)
+    log.PanicIf(err)
+
+    b := new(bytes.Buffer)
+
+    err = cs.Write(b)
+    log.PanicIf(err)
+}
+
+func TestChunkSlice_Write(t *testing.T) {
+    chunkData := []byte {
+        0x00, 0x00, 0x00, 0x0d,
+        0x49, 0x48, 0x44, 0x52,
+        0x00, 0x00, 0x05, 0xc0, 0x00, 0x00, 0x02, 0x56, 0x08, 0x02, 0x00, 0x00, 0x00,
+        0xf0, 0x49, 0xb3, 0x65,
+
+        0x00, 0x00, 0x00, 0x09,
+        0x70, 0x48, 0x59, 0x73,
+        0x00, 0x00, 0x0b, 0x13, 0x00, 0x00, 0x0b, 0x13, 0x01,
+        0x00, 0x9a, 0x9c, 0x18,
+    }
+
+    b := new(bytes.Buffer)
+
+    _, err := b.Write(PngSignature[:])
+    log.PanicIf(err)
+
+    _, err = b.Write(chunkData)
+    log.PanicIf(err)
+
+    originalFull := make([]byte, len(b.Bytes()))
+    copy(originalFull, b.Bytes())
+
+    pmp := NewPngMediaParser()
+
+    cs, err := pmp.Parse(b, len(b.Bytes()))
+    log.PanicIf(err)
+
+    chunks := cs.Chunks()
+    if len(chunks) != 2 {
+        t.Fatalf("number of chunks not correct")
+    }
+
+    b2 := new(bytes.Buffer)
+
+    err = cs.Write(b2)
+    log.PanicIf(err)
+
+
+    actual := b2.Bytes()
+
+    if bytes.Compare(actual, originalFull) != 0 {
+        fmt.Printf("ACTUAL:\n")
+        DumpBytesClause(actual)
+
+        fmt.Printf("EXPECTED:\n")
+        DumpBytesClause(originalFull)
+
+        t.Fatalf("did not write correctly")
+    }
 }
