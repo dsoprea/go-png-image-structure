@@ -127,9 +127,12 @@ func (cs *ChunkSlice) Exif() (rootIfd *exif.Ifd, data []byte, err error) {
 	chunk, err := cs.FindExif()
 	log.PanicIf(err)
 
+	im, err := exif.NewIfdMappingWithStandard()
+	log.PanicIf(err)
+
 	ti := exif.NewTagIndex()
 
-	_, index, err := exif.Collect(ti, chunk.Data)
+	_, index, err := exif.Collect(im, ti, chunk.Data)
 	log.PanicIf(err)
 
 	return index.RootIfd, chunk.Data, nil
