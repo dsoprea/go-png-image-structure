@@ -207,14 +207,12 @@ func TestChunkSlice_SetExif_Existing(t *testing.T) {
 
 	// Build EXIF.
 
-	im, err := exif.NewIfdMappingWithStandard()
-	log.PanicIf(err)
-
+	im := exif.NewIfdMappingWithStandard()
 	ti := exif.NewTagIndex()
 
 	ib := exif.NewIfdBuilder(im, ti, exif.IfdPathStandard, TestDefaultByteOrder)
 
-	err = ib.AddStandardWithName("ImageWidth", []uint32{11})
+	err := ib.AddStandardWithName("ImageWidth", []uint32{11})
 	log.PanicIf(err)
 
 	err = ib.AddStandardWithName("ImageLength", []uint32{22})
@@ -282,14 +280,12 @@ func TestChunkSlice_SetExif_Chunk(t *testing.T) {
 
 	// Build EXIF.
 
-	im, err := exif.NewIfdMappingWithStandard()
-	log.PanicIf(err)
-
+	im := exif.NewIfdMappingWithStandard()
 	ti := exif.NewTagIndex()
 
 	ib := exif.NewIfdBuilder(im, ti, exif.IfdPathStandard, TestDefaultByteOrder)
 
-	err = ib.AddStandardWithName("ImageWidth", []uint32{11})
+	err := ib.AddStandardWithName("ImageWidth", []uint32{11})
 	log.PanicIf(err)
 
 	err = ib.AddStandardWithName("ImageLength", []uint32{22})
@@ -335,14 +331,12 @@ func TestChunkSlice_SetExif_Chunk(t *testing.T) {
 func ExampleChunkSlice_SetExif() {
 	// Build EXIF.
 
-	im, err := exif.NewIfdMappingWithStandard()
-	log.PanicIf(err)
-
+	im := exif.NewIfdMappingWithStandard()
 	ti := exif.NewTagIndex()
 
 	ib := exif.NewIfdBuilder(im, ti, exif.IfdPathStandard, TestDefaultByteOrder)
 
-	err = ib.AddStandardWithName("ImageWidth", []uint32{11})
+	err := ib.AddStandardWithName("ImageWidth", []uint32{11})
 	log.PanicIf(err)
 
 	err = ib.AddStandardWithName("ImageLength", []uint32{22})
