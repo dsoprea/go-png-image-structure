@@ -61,7 +61,7 @@ func TestChunk_Write(t *testing.T) {
 	}
 
 	b := new(bytes.Buffer)
-	_, err := c.Write(b)
+	_, err := c.WriteTo(b)
 	log.PanicIf(err)
 
 	expected := c.Bytes()
@@ -81,7 +81,7 @@ func ExampleChunk_Write() {
 	}
 
 	b := new(bytes.Buffer)
-	_, err := c.Write(b)
+	_, err := c.WriteTo(b)
 	log.PanicIf(err)
 
 	data := c.Bytes()
@@ -230,7 +230,7 @@ func TestChunkSlice_SetExif_Existing(t *testing.T) {
 
 	b := new(bytes.Buffer)
 
-	err = cs.Write(b)
+	err = cs.WriteTo(b)
 	log.PanicIf(err)
 
 	updatedImageData := b.Bytes()
@@ -355,7 +355,7 @@ func ExampleChunkSlice_SetExif() {
 	b := new(bytes.Buffer)
 
 	// Write to a `bytes.Buffer`.
-	err = cs.Write(b)
+	err = cs.WriteTo(b)
 	log.PanicIf(err)
 
 	// Output:
@@ -468,7 +468,7 @@ func TestChunkSlice_ConstructExifBuilder(t *testing.T) {
 
 	b := new(bytes.Buffer)
 
-	err = cs.Write(b)
+	err = cs.WriteTo(b)
 	log.PanicIf(err)
 
 	updatedImageData := b.Bytes()
@@ -531,7 +531,7 @@ func ExampleChunkSlice_ConstructExifBuilder() {
 
 	b := new(bytes.Buffer)
 
-	err = cs.Write(b)
+	err = cs.WriteTo(b)
 	log.PanicIf(err)
 
 	updatedImageData := b.Bytes()
@@ -579,7 +579,7 @@ func TestPngSplitter_Write(t *testing.T) {
 
 	b := new(bytes.Buffer)
 
-	err = ps.Write(b)
+	err = ps.WriteTo(b)
 	log.PanicIf(err)
 
 	written := b.Bytes()
@@ -599,7 +599,7 @@ func ExampleChunkSlice_Write() {
 
 	b := new(bytes.Buffer)
 
-	err = cs.Write(b)
+	err = cs.WriteTo(b)
 	log.PanicIf(err)
 
 	// Output:
@@ -641,7 +641,7 @@ func TestChunkSlice_Write(t *testing.T) {
 
 	b2 := new(bytes.Buffer)
 
-	err = cs.Write(b2)
+	err = cs.WriteTo(b2)
 	log.PanicIf(err)
 
 	actual := b2.Bytes()

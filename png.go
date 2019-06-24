@@ -63,7 +63,7 @@ func (cs *ChunkSlice) Chunks() []*Chunk {
 }
 
 // Write encodes and writes all chunks.
-func (cs *ChunkSlice) Write(w io.Writer) (err error) {
+func (cs *ChunkSlice) WriteTo(w io.Writer) (err error) {
 	defer func() {
 		if state := recover(); state != nil {
 			err = log.Wrap(state.(error))
@@ -75,7 +75,7 @@ func (cs *ChunkSlice) Write(w io.Writer) (err error) {
 
 	// TODO(dustin): !! This should respect the safe-to-copy characteristic.
 	for _, c := range cs.chunks {
-		_, err := c.Write(w)
+		_, err := c.WriteTo(w)
 		log.PanicIf(err)
 	}
 
@@ -294,7 +294,7 @@ func (c *Chunk) Bytes() []byte {
 }
 
 // Write encodes and writes the bytes for this chunk.
-func (c *Chunk) Write(w io.Writer) (count int, err error) {
+func (c *Chunk) WriteTo(w io.Writer) (count int, err error) {
 	defer func() {
 		if state := recover(); state != nil {
 			err = log.Wrap(state.(error))
