@@ -10,21 +10,61 @@ import (
 )
 
 var (
-    assetsPath = ""
+    assetsPath        = ""
     testBasicFilepath = ""
-    testExifFilepath = ""
+    testExifFilepath  = ""
 
     TestDefaultByteOrder = binary.BigEndian
 )
 
-func init() {
-    goPath := os.Getenv("GOPATH")
-    if goPath == "" {
-        log.Panicf("GOPATH is empty")
+func GetModuleRootPath() string {
+    moduleRootPath := os.Getenv("PNG_MODULE_ROOT_PATH")
+    if moduleRootPath != "" {
+        return moduleRootPath
     }
 
-    assetsPath = path.Join(goPath, "src", "github.com", "dsoprea", "go-png-image-structure", "assets")
+    currentWd, err := os.Getwd()
+    log.PanicIf(err)
 
-    testBasicFilepath = path.Join(assetsPath, "libpng.png")
-    testExifFilepath = path.Join(assetsPath, "exif.png")
+    currentPath := currentWd
+    visited := make([]string, 0)
+
+    for {
+        tryStampFilepath := path.Join(currentPath, ".MODULE_ROOT")
+
+        _, err := os.Stat(tryStampFilepath)
+        if err != nil && os.IsNotExist(err) != true {
+            log.Panic(err)
+        } else if err == nil {
+            break
+        }
+
+        visited = append(visited, tryStampFilepath)
+
+        currentPath = path.Dir(currentPath)
+        if currentPath == "/" {
+            log.Panicf("could not find module-root: %v", visited)
+        }
+    }
+
+    return currentPath
+}
+
+func getTestAssetsPath() string {
+    if assetsPath == "" {
+        moduleRootPath := GetModuleRootPath()
+        assetsPath = path.Join(moduleRootPath, "assets")
+    }
+
+    return assetsPath
+}
+
+func getTestBasicImageFilepath() string {
+    assetsPath := getTestAssetsPath()
+    return path.Join(assetsPath, "libpng.png")
+}
+
+func getTestExifImageFilepath() string {
+    assetsPath := getTestAssetsPath()
+    return path.Join(assetsPath, "exif.png")
 }

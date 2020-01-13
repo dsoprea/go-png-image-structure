@@ -1,13 +1,14 @@
 package pngstructure
 
 import (
-    "testing"
     "path"
+    "testing"
 
     "github.com/dsoprea/go-logging"
 )
 
 func TestChunkDecoder_decodeIHDR(t *testing.T) {
+    assetsPath := getTestAssetsPath()
     filepath := path.Join(assetsPath, "Selection_058.png")
 
     pmp := NewPngMediaParser()
@@ -30,13 +31,13 @@ func TestChunkDecoder_decodeIHDR(t *testing.T) {
     ihdr := ihdrRaw.(*ChunkIHDR)
 
     expected := &ChunkIHDR{
-        Width: 1472,
-        Height: 598,
-        BitDepth: 8,
-        ColorType: 2,
+        Width:             1472,
+        Height:            598,
+        BitDepth:          8,
+        ColorType:         2,
         CompressionMethod: 0,
-        FilterMethod: 0,
-        InterlaceMethod: 0,
+        FilterMethod:      0,
+        InterlaceMethod:   0,
     }
 
     if *ihdr != *expected {

@@ -9,7 +9,7 @@ import (
 	"encoding/binary"
 	"hash/crc32"
 
-	"github.com/dsoprea/go-exif"
+	"github.com/dsoprea/go-exif/v2"
 	"github.com/dsoprea/go-logging"
 )
 
@@ -145,11 +145,10 @@ func (cs *ChunkSlice) ConstructExifBuilder() (rootIb *exif.IfdBuilder, err error
 		}
 	}()
 
-	rootIfd, data, err := cs.Exif()
+	rootIfd, _, err := cs.Exif()
 	log.PanicIf(err)
 
-	itevr := exif.NewIfdTagEntryValueResolver(data, rootIfd.ByteOrder)
-	ib := exif.NewIfdBuilderFromExistingChain(rootIfd, itevr)
+	ib := exif.NewIfdBuilderFromExistingChain(rootIfd)
 
 	return ib, nil
 }

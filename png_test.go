@@ -9,7 +9,8 @@ import (
 
 	"io/ioutil"
 
-	"github.com/dsoprea/go-exif"
+	"github.com/dsoprea/go-exif/v2"
+	"github.com/dsoprea/go-exif/v2/common"
 	"github.com/dsoprea/go-logging"
 )
 
@@ -150,6 +151,8 @@ func TestChunkSlice_FindExif_Hit(t *testing.T) {
 		}
 	}()
 
+	testBasicFilepath := getTestBasicImageFilepath()
+
 	pmp := NewPngMediaParser()
 
 	cs, err := pmp.ParseFile(testBasicFilepath)
@@ -176,6 +179,8 @@ func TestChunkSlice_Exif(t *testing.T) {
 		}
 	}()
 
+	testExifFilepath := getTestExifImageFilepath()
+
 	pmp := NewPngMediaParser()
 
 	cs, err := pmp.ParseFile(testExifFilepath)
@@ -186,13 +191,13 @@ func TestChunkSlice_Exif(t *testing.T) {
 
 	tags := rootIfd.Entries
 
-	if rootIfd.IfdPath != exif.IfdPathStandard {
+	if rootIfd.IfdPath != exifcommon.IfdPathStandard {
 		t.Fatalf("root-IFD not parsed correctly")
 	} else if len(tags) != 2 {
 		t.Fatalf("incorrect number of encoded tags")
-	} else if tags[0].TagId != 0x0100 {
+	} else if tags[0].TagId() != 0x0100 {
 		t.Fatalf("first tag is not correct")
-	} else if tags[1].TagId != 0x0101 {
+	} else if tags[1].TagId() != 0x0101 {
 		t.Fatalf("second tag is not correct")
 	}
 }
@@ -205,12 +210,14 @@ func TestChunkSlice_SetExif_Existing(t *testing.T) {
 		}
 	}()
 
+	testBasicFilepath := getTestBasicImageFilepath()
+
 	// Build EXIF.
 
 	im := exif.NewIfdMappingWithStandard()
 	ti := exif.NewTagIndex()
 
-	ib := exif.NewIfdBuilder(im, ti, exif.IfdPathStandard, TestDefaultByteOrder)
+	ib := exif.NewIfdBuilder(im, ti, exifcommon.IfdPathStandard, TestDefaultByteOrder)
 
 	err := ib.AddStandardWithName("ImageWidth", []uint32{11})
 	log.PanicIf(err)
@@ -263,9 +270,9 @@ func TestChunkSlice_SetExif_Existing(t *testing.T) {
 
 	if len(tags) != 2 {
 		t.Fatalf("incorrect number of encoded tags")
-	} else if tags[0].TagId != 0x0100 {
+	} else if tags[0].TagId() != 0x0100 {
 		t.Fatalf("first tag is not correct")
-	} else if tags[1].TagId != 0x0101 {
+	} else if tags[1].TagId() != 0x0101 {
 		t.Fatalf("second tag is not correct")
 	}
 }
@@ -283,7 +290,7 @@ func TestChunkSlice_SetExif_Chunk(t *testing.T) {
 	im := exif.NewIfdMappingWithStandard()
 	ti := exif.NewTagIndex()
 
-	ib := exif.NewIfdBuilder(im, ti, exif.IfdPathStandard, TestDefaultByteOrder)
+	ib := exif.NewIfdBuilder(im, ti, exifcommon.IfdPathStandard, TestDefaultByteOrder)
 
 	err := ib.AddStandardWithName("ImageWidth", []uint32{11})
 	log.PanicIf(err)
@@ -321,9 +328,9 @@ func TestChunkSlice_SetExif_Chunk(t *testing.T) {
 
 	if len(tags) != 2 {
 		t.Fatalf("incorrect number of encoded tags")
-	} else if tags[0].TagId != 0x0100 {
+	} else if tags[0].TagId() != 0x0100 {
 		t.Fatalf("first tag is not correct")
-	} else if tags[1].TagId != 0x0101 {
+	} else if tags[1].TagId() != 0x0101 {
 		t.Fatalf("second tag is not correct")
 	}
 }
@@ -331,10 +338,12 @@ func TestChunkSlice_SetExif_Chunk(t *testing.T) {
 func ExampleChunkSlice_SetExif() {
 	// Build EXIF.
 
+	testBasicFilepath := getTestBasicImageFilepath()
+
 	im := exif.NewIfdMappingWithStandard()
 	ti := exif.NewTagIndex()
 
-	ib := exif.NewIfdBuilder(im, ti, exif.IfdPathStandard, TestDefaultByteOrder)
+	ib := exif.NewIfdBuilder(im, ti, exifcommon.IfdPathStandard, TestDefaultByteOrder)
 
 	err := ib.AddStandardWithName("ImageWidth", []uint32{11})
 	log.PanicIf(err)
@@ -362,6 +371,8 @@ func ExampleChunkSlice_SetExif() {
 }
 
 func ExampleChunkSlice_Exif() {
+	testExifFilepath := getTestExifImageFilepath()
+
 	pmp := NewPngMediaParser()
 
 	cs, err := pmp.ParseFile(testExifFilepath)
@@ -376,6 +387,8 @@ func ExampleChunkSlice_Exif() {
 }
 
 func ExampleChunkSlice_FindExif() {
+	testBasicFilepath := getTestBasicImageFilepath()
+
 	pmp := NewPngMediaParser()
 
 	cs, err := pmp.ParseFile(testBasicFilepath)
@@ -445,6 +458,8 @@ func TestChunkSlice_ConstructExifBuilder(t *testing.T) {
 		}
 	}()
 
+	testExifFilepath := getTestExifImageFilepath()
+
 	pmp := NewPngMediaParser()
 
 	cs, err := pmp.ParseFile(testExifFilepath)
@@ -485,29 +500,31 @@ func TestChunkSlice_ConstructExifBuilder(t *testing.T) {
 
 	tags := rootIfd.Entries
 
-	v1, err := rootIfd.TagValue(tags[0])
+	v1, err := tags[0].Value()
 	log.PanicIf(err)
 
-	v2, err := rootIfd.TagValue(tags[1])
+	v2, err := tags[1].Value()
 	log.PanicIf(err)
 
-	v3, err := rootIfd.TagValue(tags[2])
+	v3, err := tags[2].Value()
 	log.PanicIf(err)
 
-	if rootIfd.IfdPath != exif.IfdPathStandard {
+	if rootIfd.IfdPath != exifcommon.IfdPathStandard {
 		t.Fatalf("root-IFD not parsed correctly")
 	} else if len(tags) != 3 {
 		t.Fatalf("incorrect number of encoded tags")
-	} else if tags[0].TagId != 0x0100 || reflect.DeepEqual(v1.([]uint32), []uint32{11}) != true {
+	} else if tags[0].TagId() != 0x0100 || reflect.DeepEqual(v1.([]uint32), []uint32{11}) != true {
 		t.Fatalf("first tag is not correct")
-	} else if tags[1].TagId != 0x0101 || reflect.DeepEqual(v2.([]uint32), []uint32{44}) != true {
+	} else if tags[1].TagId() != 0x0101 || reflect.DeepEqual(v2.([]uint32), []uint32{44}) != true {
 		t.Fatalf("second tag is not correct")
-	} else if tags[2].TagId != 0x0102 || reflect.DeepEqual(v3.([]uint16), []uint16{33}) != true {
+	} else if tags[2].TagId() != 0x0102 || reflect.DeepEqual(v3.([]uint16), []uint16{33}) != true {
 		t.Fatalf("third tag is not correct")
 	}
 }
 
 func ExampleChunkSlice_ConstructExifBuilder() {
+	testExifFilepath := getTestExifImageFilepath()
+
 	pmp := NewPngMediaParser()
 
 	cs, err := pmp.ParseFile(testExifFilepath)
@@ -547,10 +564,10 @@ func ExampleChunkSlice_ConstructExifBuilder() {
 	log.PanicIf(err)
 
 	for i, ite := range rootIfd.Entries {
-		value, err := rootIfd.TagValue(ite)
+		value, err := ite.Value()
 		log.PanicIf(err)
 
-		fmt.Printf("%d: (0x%04x) %v\n", i, ite.TagId, value)
+		fmt.Printf("%d: (0x%04x) %v\n", i, ite.TagId(), value)
 	}
 
 	// Output:
