@@ -13,8 +13,10 @@ func TestChunkDecoder_decodeIHDR(t *testing.T) {
 
     pmp := NewPngMediaParser()
 
-    cs, err := pmp.ParseFile(filepath)
+    intfc, err := pmp.ParseFile(filepath)
     log.PanicIf(err)
+
+    cs := intfc.(*ChunkSlice)
 
     index := cs.Index()
     ihdrRawSlice, found := index["IHDR"]
@@ -50,8 +52,10 @@ func ExampleChunkDecoder_Decode() {
 
     pmp := NewPngMediaParser()
 
-    cs, err := pmp.ParseFile(filepath)
+    intfc, err := pmp.ParseFile(filepath)
     log.PanicIf(err)
+
+    cs := intfc.(*ChunkSlice)
 
     index := cs.Index()
     ihdrRawSlice, found := index["IHDR"]

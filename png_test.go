@@ -96,9 +96,10 @@ func TestChunkSlice_Index(t *testing.T) {
 
 	pmp := NewPngMediaParser()
 
-	cs, err := pmp.ParseFile(filepath)
+	intfc, err := pmp.ParseFile(filepath)
 	log.PanicIf(err)
 
+	cs := intfc.(*ChunkSlice)
 	index := cs.Index()
 
 	tallies := make(map[string]int)
@@ -131,9 +132,10 @@ func TestChunkSlice_FindExif_Miss(t *testing.T) {
 
 	pmp := NewPngMediaParser()
 
-	cs, err := pmp.ParseFile(filepath)
+	intfc, err := pmp.ParseFile(filepath)
 	log.PanicIf(err)
 
+	cs := intfc.(*ChunkSlice)
 	_, err = cs.FindExif()
 
 	if err == nil {
@@ -155,8 +157,10 @@ func TestChunkSlice_FindExif_Hit(t *testing.T) {
 
 	pmp := NewPngMediaParser()
 
-	cs, err := pmp.ParseFile(testBasicFilepath)
+	intfc, err := pmp.ParseFile(testBasicFilepath)
 	log.PanicIf(err)
+
+	cs := intfc.(*ChunkSlice)
 
 	exifChunk, err := cs.FindExif()
 	log.PanicIf(err)
@@ -183,8 +187,10 @@ func TestChunkSlice_Exif(t *testing.T) {
 
 	pmp := NewPngMediaParser()
 
-	cs, err := pmp.ParseFile(testExifFilepath)
+	intfc, err := pmp.ParseFile(testExifFilepath)
 	log.PanicIf(err)
+
+	cs := intfc.(*ChunkSlice)
 
 	rootIfd, _, err := cs.Exif()
 	log.PanicIf(err)
@@ -229,8 +235,10 @@ func TestChunkSlice_SetExif_Existing(t *testing.T) {
 
 	pmp := NewPngMediaParser()
 
-	cs, err := pmp.ParseFile(testBasicFilepath)
+	intfc, err := pmp.ParseFile(testBasicFilepath)
 	log.PanicIf(err)
+
+	cs := intfc.(*ChunkSlice)
 
 	err = cs.SetExif(ib)
 	log.PanicIf(err)
@@ -244,8 +252,10 @@ func TestChunkSlice_SetExif_Existing(t *testing.T) {
 
 	// Re-parse.
 
-	cs, err = pmp.ParseBytes(updatedImageData)
+	intfc, err = pmp.ParseBytes(updatedImageData)
 	log.PanicIf(err)
+
+	cs = intfc.(*ChunkSlice)
 
 	exifChunk, err := cs.FindExif()
 	log.PanicIf(err)
@@ -355,8 +365,10 @@ func ExampleChunkSlice_SetExif() {
 
 	pmp := NewPngMediaParser()
 
-	cs, err := pmp.ParseFile(testBasicFilepath)
+	intfc, err := pmp.ParseFile(testBasicFilepath)
 	log.PanicIf(err)
+
+	cs := intfc.(*ChunkSlice)
 
 	err = cs.SetExif(ib)
 	log.PanicIf(err)
@@ -375,8 +387,10 @@ func ExampleChunkSlice_Exif() {
 
 	pmp := NewPngMediaParser()
 
-	cs, err := pmp.ParseFile(testExifFilepath)
+	intfc, err := pmp.ParseFile(testExifFilepath)
 	log.PanicIf(err)
+
+	cs := intfc.(*ChunkSlice)
 
 	rootIfd, _, err := cs.Exif()
 	log.PanicIf(err)
@@ -391,8 +405,10 @@ func ExampleChunkSlice_FindExif() {
 
 	pmp := NewPngMediaParser()
 
-	cs, err := pmp.ParseFile(testBasicFilepath)
+	intfc, err := pmp.ParseFile(testBasicFilepath)
 	log.PanicIf(err)
+
+	cs := intfc.(*ChunkSlice)
 
 	exifChunk, err := cs.FindExif()
 	log.PanicIf(err)
@@ -407,8 +423,10 @@ func ExampleChunkSlice_Index() {
 
 	pmp := NewPngMediaParser()
 
-	cs, err := pmp.ParseFile(filepath)
+	intfc, err := pmp.ParseFile(filepath)
 	log.PanicIf(err)
+
+	cs := intfc.(*ChunkSlice)
 
 	index := cs.Index()
 	index = index
@@ -462,8 +480,10 @@ func TestChunkSlice_ConstructExifBuilder(t *testing.T) {
 
 	pmp := NewPngMediaParser()
 
-	cs, err := pmp.ParseFile(testExifFilepath)
+	intfc, err := pmp.ParseFile(testExifFilepath)
 	log.PanicIf(err)
+
+	cs := intfc.(*ChunkSlice)
 
 	// Add a new tag to the additional EXIF.
 
@@ -492,8 +512,10 @@ func TestChunkSlice_ConstructExifBuilder(t *testing.T) {
 
 	pmp = NewPngMediaParser()
 
-	cs, err = pmp.ParseBytes(updatedImageData)
+	intfc, err = pmp.ParseBytes(updatedImageData)
 	log.PanicIf(err)
+
+	cs = intfc.(*ChunkSlice)
 
 	rootIfd, _, err := cs.Exif()
 	log.PanicIf(err)
@@ -527,8 +549,10 @@ func ExampleChunkSlice_ConstructExifBuilder() {
 
 	pmp := NewPngMediaParser()
 
-	cs, err := pmp.ParseFile(testExifFilepath)
+	intfc, err := pmp.ParseFile(testExifFilepath)
 	log.PanicIf(err)
+
+	cs := intfc.(*ChunkSlice)
 
 	// Add a new tag to the additional EXIF.
 
@@ -557,8 +581,10 @@ func ExampleChunkSlice_ConstructExifBuilder() {
 
 	pmp = NewPngMediaParser()
 
-	cs, err = pmp.ParseBytes(updatedImageData)
+	intfc, err = pmp.ParseBytes(updatedImageData)
 	log.PanicIf(err)
+
+	cs = intfc.(*ChunkSlice)
 
 	rootIfd, _, err := cs.Exif()
 	log.PanicIf(err)
@@ -591,12 +617,14 @@ func TestPngSplitter_Write(t *testing.T) {
 
 	pmp := NewPngMediaParser()
 
-	ps, err := pmp.ParseBytes(original)
+	intfc, err := pmp.ParseBytes(original)
 	log.PanicIf(err)
+
+	cs := intfc.(*ChunkSlice)
 
 	b := new(bytes.Buffer)
 
-	err = ps.WriteTo(b)
+	err = cs.WriteTo(b)
 	log.PanicIf(err)
 
 	written := b.Bytes()
@@ -611,8 +639,10 @@ func ExampleChunkSlice_Write() {
 
 	pmp := NewPngMediaParser()
 
-	cs, err := pmp.ParseFile(filepath)
+	intfc, err := pmp.ParseFile(filepath)
 	log.PanicIf(err)
+
+	cs := intfc.(*ChunkSlice)
 
 	b := new(bytes.Buffer)
 
@@ -648,8 +678,10 @@ func TestChunkSlice_Write(t *testing.T) {
 
 	pmp := NewPngMediaParser()
 
-	cs, err := pmp.Parse(b, len(b.Bytes()))
+	intfc, err := pmp.Parse(b, len(b.Bytes()))
 	log.PanicIf(err)
+
+	cs := intfc.(*ChunkSlice)
 
 	chunks := cs.Chunks()
 	if len(chunks) != 2 {

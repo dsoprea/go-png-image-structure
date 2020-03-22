@@ -1,14 +1,14 @@
 package pngstructure
 
 import (
-    "os"
-    "io"
     "bufio"
     "bytes"
+    "io"
+    "os"
 
     "github.com/dsoprea/go-logging"
+    "github.com/dsoprea/go-utility/image"
 )
-
 
 type PngMediaParser struct {
 }
@@ -17,7 +17,7 @@ func NewPngMediaParser() *PngMediaParser {
     return new(PngMediaParser)
 }
 
-func (pmp *PngMediaParser) Parse(r io.Reader, size int) (chunks *ChunkSlice, err error) {
+func (pmp *PngMediaParser) Parse(r io.Reader, size int) (ec riimage.MediaContext, err error) {
     defer func() {
         if state := recover(); state != nil {
             err = log.Wrap(state.(error))
@@ -33,17 +33,18 @@ func (pmp *PngMediaParser) Parse(r io.Reader, size int) (chunks *ChunkSlice, err
 
     // Since each segment can be any size, our buffer must be allowed to grow
     // as large as the file.
-    buffer := []byte {}
+    buffer := []byte{}
     s.Buffer(buffer, size)
     s.Split(ps.Split)
 
-    for ; s.Scan() != false; { }
+    for s.Scan() != false {
+    }
     log.PanicIf(s.Err())
 
     return ps.Chunks(), nil
 }
 
-func (pmp *PngMediaParser) ParseFile(filepath string) (chunks *ChunkSlice, err error) {
+func (pmp *PngMediaParser) ParseFile(filepath string) (ec riimage.MediaContext, err error) {
     defer func() {
         if state := recover(); state != nil {
             err = log.Wrap(state.(error))
@@ -58,13 +59,13 @@ func (pmp *PngMediaParser) ParseFile(filepath string) (chunks *ChunkSlice, err e
 
     size := stat.Size()
 
-    chunks, err = pmp.Parse(f, int(size))
+    chunks, err := pmp.Parse(f, int(size))
     log.PanicIf(err)
 
     return chunks, nil
 }
 
-func (pmp *PngMediaParser) ParseBytes(data []byte) (chunks *ChunkSlice, err error) {
+func (pmp *PngMediaParser) ParseBytes(data []byte) (ec riimage.MediaContext, err error) {
     defer func() {
         if state := recover(); state != nil {
             err = log.Wrap(state.(error))
@@ -73,7 +74,7 @@ func (pmp *PngMediaParser) ParseBytes(data []byte) (chunks *ChunkSlice, err erro
 
     b := bytes.NewBuffer(data)
 
-    chunks, err = pmp.Parse(b, len(data))
+    chunks, err := pmp.Parse(b, len(data))
     log.PanicIf(err)
 
     return chunks, nil
