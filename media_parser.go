@@ -17,7 +17,7 @@ func NewPngMediaParser() *PngMediaParser {
     return new(PngMediaParser)
 }
 
-func (pmp *PngMediaParser) Parse(r io.Reader, size int) (ec riimage.MediaContext, err error) {
+func (pmp *PngMediaParser) Parse(rs io.ReadSeeker, size int) (ec riimage.MediaContext, err error) {
     defer func() {
         if state := recover(); state != nil {
             err = log.Wrap(state.(error))
@@ -26,10 +26,10 @@ func (pmp *PngMediaParser) Parse(r io.Reader, size int) (ec riimage.MediaContext
 
     ps := NewPngSplitter()
 
-    err = ps.readHeader(r)
+    err = ps.readHeader(rs)
     log.PanicIf(err)
 
-    s := bufio.NewScanner(r)
+    s := bufio.NewScanner(rs)
 
     // Since each segment can be any size, our buffer must be allowed to grow
     // as large as the file.
@@ -72,9 +72,9 @@ func (pmp *PngMediaParser) ParseBytes(data []byte) (ec riimage.MediaContext, err
         }
     }()
 
-    b := bytes.NewBuffer(data)
+    br := bytes.NewReader(data)
 
-    chunks, err := pmp.Parse(b, len(data))
+    chunks, err := pmp.Parse(br, len(data))
     log.PanicIf(err)
 
     return chunks, nil
@@ -83,3 +83,8 @@ func (pmp *PngMediaParser) ParseBytes(data []byte) (ec riimage.MediaContext, err
 func (pmp *PngMediaParser) LooksLikeFormat(data []byte) bool {
     return bytes.Compare(data[:len(PngSignature)], PngSignature[:]) == 0
 }
+
+var (
+    // Enforce that `PngMediaParser` looks like a `riimage.MediaParser`.
+    _ riimage.MediaParser = new(PngMediaParser)
+)

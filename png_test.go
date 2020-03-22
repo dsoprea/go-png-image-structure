@@ -676,9 +676,11 @@ func TestChunkSlice_Write(t *testing.T) {
 	originalFull := make([]byte, len(b.Bytes()))
 	copy(originalFull, b.Bytes())
 
+	br := bytes.NewReader(b.Bytes())
+
 	pmp := NewPngMediaParser()
 
-	intfc, err := pmp.Parse(b, len(b.Bytes()))
+	intfc, err := pmp.Parse(br, len(b.Bytes()))
 	log.PanicIf(err)
 
 	cs := intfc.(*ChunkSlice)
