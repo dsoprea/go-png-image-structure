@@ -6,9 +6,7 @@ go 1.13
 // replace github.com/dsoprea/go-utility => ../go-utility
 
 require (
-	github.com/dsoprea/go-exif/v2 v2.0.0-20200517080529-c9be4b30b064
-	github.com/dsoprea/go-logging v0.0.0-20200502201358-170ff607885f
+	github.com/dsoprea/go-exif/v2 v2.0.0-20200518001653-d0d0f14dea03
+	github.com/dsoprea/go-logging v0.0.0-20200517223158-a10564966e9d
 	github.com/dsoprea/go-utility v0.0.0-20200512094054-1abbbc781176
-	golang.org/x/net v0.0.0-20200513185701-a91f0712d120 // indirect
-	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
