@@ -197,7 +197,7 @@ func TestChunkSlice_Exif(t *testing.T) {
 
 	tags := rootIfd.Entries
 
-	if rootIfd.IfdPath != exifcommon.IfdPathStandard {
+	if rootIfd.IfdIdentity().Equals(exifcommon.IfdStandardIfdIdentity) != true {
 		t.Fatalf("root-IFD not parsed correctly")
 	} else if len(tags) != 2 {
 		t.Fatalf("incorrect number of encoded tags")
@@ -223,7 +223,7 @@ func TestChunkSlice_SetExif_Existing(t *testing.T) {
 	im := exif.NewIfdMappingWithStandard()
 	ti := exif.NewTagIndex()
 
-	ib := exif.NewIfdBuilder(im, ti, exifcommon.IfdPathStandard, TestDefaultByteOrder)
+	ib := exif.NewIfdBuilder(im, ti, exifcommon.IfdStandardIfdIdentity, TestDefaultByteOrder)
 
 	err := ib.AddStandardWithName("ImageWidth", []uint32{11})
 	log.PanicIf(err)
@@ -300,7 +300,7 @@ func TestChunkSlice_SetExif_Chunk(t *testing.T) {
 	im := exif.NewIfdMappingWithStandard()
 	ti := exif.NewTagIndex()
 
-	ib := exif.NewIfdBuilder(im, ti, exifcommon.IfdPathStandard, TestDefaultByteOrder)
+	ib := exif.NewIfdBuilder(im, ti, exifcommon.IfdStandardIfdIdentity, TestDefaultByteOrder)
 
 	err := ib.AddStandardWithName("ImageWidth", []uint32{11})
 	log.PanicIf(err)
@@ -353,7 +353,7 @@ func ExampleChunkSlice_SetExif() {
 	im := exif.NewIfdMappingWithStandard()
 	ti := exif.NewTagIndex()
 
-	ib := exif.NewIfdBuilder(im, ti, exifcommon.IfdPathStandard, TestDefaultByteOrder)
+	ib := exif.NewIfdBuilder(im, ti, exifcommon.IfdStandardIfdIdentity, TestDefaultByteOrder)
 
 	err := ib.AddStandardWithName("ImageWidth", []uint32{11})
 	log.PanicIf(err)
@@ -531,7 +531,7 @@ func TestChunkSlice_ConstructExifBuilder(t *testing.T) {
 	v3, err := tags[2].Value()
 	log.PanicIf(err)
 
-	if rootIfd.IfdPath != exifcommon.IfdPathStandard {
+	if rootIfd.IfdIdentity().Equals(exifcommon.IfdStandardIfdIdentity) != true {
 		t.Fatalf("root-IFD not parsed correctly")
 	} else if len(tags) != 3 {
 		t.Fatalf("incorrect number of encoded tags")
