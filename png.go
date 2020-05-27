@@ -130,6 +130,8 @@ func (cs *ChunkSlice) Exif() (rootIfd *exif.Ifd, data []byte, err error) {
 	im := exif.NewIfdMappingWithStandard()
 	ti := exif.NewTagIndex()
 
+	// TODO(dustin): Refactor and support `exif.GetExifData()`.
+
 	_, index, err := exif.Collect(im, ti, chunk.Data)
 	log.PanicIf(err)
 
