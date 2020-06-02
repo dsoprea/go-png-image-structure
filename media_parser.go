@@ -10,19 +10,27 @@ import (
     "github.com/dsoprea/go-utility/image"
 )
 
+// PngMediaParser knows how to parse a PNG stream.
 type PngMediaParser struct {
 }
 
+// NewPngMediaParser returns a new `PngMediaParser` struct.
 func NewPngMediaParser() *PngMediaParser {
+
+    // TODO(dustin): Add test
+
     return new(PngMediaParser)
 }
 
-func (pmp *PngMediaParser) Parse(rs io.ReadSeeker, size int) (ec riimage.MediaContext, err error) {
+// Parse parses a PNG stream given a `io.ReadSeeker`.
+func (pmp *PngMediaParser) Parse(rs io.ReadSeeker, size int) (mc riimage.MediaContext, err error) {
     defer func() {
         if state := recover(); state != nil {
             err = log.Wrap(state.(error))
         }
     }()
+
+    // TODO(dustin): Add test
 
     ps := NewPngSplitter()
 
@@ -44,7 +52,8 @@ func (pmp *PngMediaParser) Parse(rs io.ReadSeeker, size int) (ec riimage.MediaCo
     return ps.Chunks(), nil
 }
 
-func (pmp *PngMediaParser) ParseFile(filepath string) (ec riimage.MediaContext, err error) {
+// ParseFile parses a PNG stream given a file-path.
+func (pmp *PngMediaParser) ParseFile(filepath string) (mc riimage.MediaContext, err error) {
     defer func() {
         if state := recover(); state != nil {
             err = log.Wrap(state.(error))
@@ -53,6 +62,8 @@ func (pmp *PngMediaParser) ParseFile(filepath string) (ec riimage.MediaContext, 
 
     f, err := os.Open(filepath)
     log.PanicIf(err)
+
+    defer f.Close()
 
     stat, err := f.Stat()
     log.PanicIf(err)
@@ -65,12 +76,15 @@ func (pmp *PngMediaParser) ParseFile(filepath string) (ec riimage.MediaContext, 
     return chunks, nil
 }
 
-func (pmp *PngMediaParser) ParseBytes(data []byte) (ec riimage.MediaContext, err error) {
+// ParseBytes parses a PNG stream given a byte-slice.
+func (pmp *PngMediaParser) ParseBytes(data []byte) (mc riimage.MediaContext, err error) {
     defer func() {
         if state := recover(); state != nil {
             err = log.Wrap(state.(error))
         }
     }()
+
+    // TODO(dustin): Add test
 
     br := bytes.NewReader(data)
 
@@ -80,11 +94,13 @@ func (pmp *PngMediaParser) ParseBytes(data []byte) (ec riimage.MediaContext, err
     return chunks, nil
 }
 
+// LooksLikeFormat returns a boolean indicating whether the stream looks like a
+// PNG image.
 func (pmp *PngMediaParser) LooksLikeFormat(data []byte) bool {
     return bytes.Compare(data[:len(PngSignature)], PngSignature[:]) == 0
 }
 
 var (
-    // Enforce that `PngMediaParser` looks like a `riimage.MediaParser`.
+    // Enforce interface conformance.
     _ riimage.MediaParser = new(PngMediaParser)
 )
