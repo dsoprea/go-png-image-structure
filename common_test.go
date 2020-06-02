@@ -1,70 +1,46 @@
 package pngstructure
 
 import (
-    "os"
     "path"
 
-    "encoding/binary"
+    "go/build"
 
     "github.com/dsoprea/go-logging"
 )
 
 var (
-    assetsPath        = ""
-    testBasicFilepath = ""
-    testExifFilepath  = ""
-
-    TestDefaultByteOrder = binary.BigEndian
+    assetsPath = ""
 )
 
-func GetModuleRootPath() string {
-    moduleRootPath := os.Getenv("PNG_MODULE_ROOT_PATH")
-    if moduleRootPath != "" {
-        return moduleRootPath
-    }
+// getModuleRootPath returns our source-path when running from source during
+// tests.
+func getModuleRootPath() string {
+    p, err := build.Default.Import(
+        "github.com/dsoprea/go-png-image-structure",
+        build.Default.GOPATH,
+        build.FindOnly)
 
-    currentWd, err := os.Getwd()
     log.PanicIf(err)
 
-    currentPath := currentWd
-    visited := make([]string, 0)
-
-    for {
-        tryStampFilepath := path.Join(currentPath, ".MODULE_ROOT")
-
-        _, err := os.Stat(tryStampFilepath)
-        if err != nil && os.IsNotExist(err) != true {
-            log.Panic(err)
-        } else if err == nil {
-            break
-        }
-
-        visited = append(visited, tryStampFilepath)
-
-        currentPath = path.Dir(currentPath)
-        if currentPath == "/" {
-            log.Panicf("could not find module-root: %v", visited)
-        }
-    }
-
-    return currentPath
+    packagePath := p.Dir
+    return packagePath
 }
 
 func getTestAssetsPath() string {
-    if assetsPath == "" {
-        moduleRootPath := GetModuleRootPath()
-        assetsPath = path.Join(moduleRootPath, "assets")
-    }
+    moduleRootPath := getModuleRootPath()
+    assetsPath := path.Join(moduleRootPath, "assets")
 
     return assetsPath
 }
 
 func getTestBasicImageFilepath() string {
-    assetsPath := getTestAssetsPath()
     return path.Join(assetsPath, "libpng.png")
 }
 
 func getTestExifImageFilepath() string {
-    assetsPath := getTestAssetsPath()
     return path.Join(assetsPath, "exif.png")
+}
+
+func init() {
+    assetsPath = getTestAssetsPath()
 }
