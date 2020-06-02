@@ -11,6 +11,7 @@ import (
 
 	"github.com/dsoprea/go-exif/v2"
 	"github.com/dsoprea/go-logging"
+	"github.com/dsoprea/go-utility/image"
 )
 
 var (
@@ -406,3 +407,8 @@ func (ps *PngSplitter) Split(data []byte, atEOF bool) (advance int, token []byte
 
 	return advance, nil, nil
 }
+
+var (
+	// Enforce interface conformance.
+	_ riimage.MediaContext = new(ChunkSlice)
+)
