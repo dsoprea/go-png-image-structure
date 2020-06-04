@@ -1,16 +1,16 @@
 package pngstructure
 
 import (
+    "fmt"
     "path"
     "testing"
-    "fmt"
 
     "io/ioutil"
 
     "github.com/dsoprea/go-logging"
 )
 
-func TestParseFileStructure(t *testing.T) {
+func TestPngMediaParser_ParseFile(t *testing.T) {
     filepath := path.Join(assetsPath, "Selection_058.png")
 
     pmp := NewPngMediaParser()
