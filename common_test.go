@@ -4,20 +4,14 @@ import (
     "os"
     "path"
 
-    "encoding/binary"
-
     "github.com/dsoprea/go-logging"
 )
 
 var (
-    assetsPath        = ""
-    testBasicFilepath = ""
-    testExifFilepath  = ""
-
-    TestDefaultByteOrder = binary.BigEndian
+    assetsPath = ""
 )
 
-func GetModuleRootPath() string {
+func getModuleRootPath() string {
     moduleRootPath := os.Getenv("PNG_MODULE_ROOT_PATH")
     if moduleRootPath != "" {
         return moduleRootPath
@@ -52,7 +46,7 @@ func GetModuleRootPath() string {
 
 func getTestAssetsPath() string {
     if assetsPath == "" {
-        moduleRootPath := GetModuleRootPath()
+        moduleRootPath := getModuleRootPath()
         assetsPath = path.Join(moduleRootPath, "assets")
     }
 
