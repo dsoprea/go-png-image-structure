@@ -1,48 +1,48 @@
 package pngstructure
 
 import (
-    "fmt"
-    "path"
-    "testing"
+	"fmt"
+	"path"
+	"testing"
 
-    "io/ioutil"
+	"io/ioutil"
 
-    "github.com/dsoprea/go-logging"
+	"github.com/dsoprea/go-logging"
 )
 
 func TestPngMediaParser_ParseFile(t *testing.T) {
-    filepath := path.Join(assetsPath, "Selection_058.png")
+	filepath := path.Join(assetsPath, "Selection_058.png")
 
-    pmp := NewPngMediaParser()
+	pmp := NewPngMediaParser()
 
-    _, err := pmp.ParseFile(filepath)
-    log.PanicIf(err)
+	_, err := pmp.ParseFile(filepath)
+	log.PanicIf(err)
 }
 
 func TestPngMediaParser_LooksLikeFormat(t *testing.T) {
-    filepath := path.Join(assetsPath, "libpng.png")
+	filepath := path.Join(assetsPath, "libpng.png")
 
-    data, err := ioutil.ReadFile(filepath)
-    log.PanicIf(err)
+	data, err := ioutil.ReadFile(filepath)
+	log.PanicIf(err)
 
-    pmp := NewPngMediaParser()
+	pmp := NewPngMediaParser()
 
-    if pmp.LooksLikeFormat(data) != true {
-        t.Fatalf("not detected as png")
-    }
+	if pmp.LooksLikeFormat(data) != true {
+		t.Fatalf("not detected as png")
+	}
 }
 
 func ExamplePngMediaParser_LooksLikeFormat() {
-    filepath := path.Join(assetsPath, "libpng.png")
+	filepath := path.Join(assetsPath, "libpng.png")
 
-    data, err := ioutil.ReadFile(filepath)
-    log.PanicIf(err)
+	data, err := ioutil.ReadFile(filepath)
+	log.PanicIf(err)
 
-    pmp := NewPngMediaParser()
+	pmp := NewPngMediaParser()
 
-    isPng := pmp.LooksLikeFormat(data)
-    fmt.Printf("%v\n", isPng)
+	isPng := pmp.LooksLikeFormat(data)
+	fmt.Printf("%v\n", isPng)
 
-    // Output:
-    // true
+	// Output:
+	// true
 }
