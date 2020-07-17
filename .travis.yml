@@ -9,6 +9,13 @@ env:
   - GO111MODULE=on
 install:
   - go get -t ./...
-  - go get github.com/mattn/goveralls
 script:
-  - goveralls -v -service=travis-ci
+# v1
+  - go test -v .
+# v2
+  - cd v2
+  - go test -v .
+  - cd ..
+after_success:
+  - cd v2
+  - curl -s https://codecov.io/bash | bash
