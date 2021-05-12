@@ -140,7 +140,7 @@ func TestChunkSlice_FindExif_Miss(t *testing.T) {
 
 	if err == nil {
 		t.Fatalf("expected error for missing EXIF")
-	} else if log.Is(err, ErrNoExif) == false {
+	} else if log.Is(err, exif.ErrNoExif) == false {
 		log.Panic(err)
 	}
 }

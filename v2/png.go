@@ -23,7 +23,6 @@ var (
 
 var (
 	ErrNotPng     = errors.New("not png data")
-	ErrNoExif     = errors.New("file does not have EXIF")
 	ErrCrcFailure = errors.New("crc failure")
 )
 
@@ -112,7 +111,7 @@ func (cs *ChunkSlice) FindExif() (chunk *Chunk, err error) {
 		return chunks[0], nil
 	}
 
-	log.Panic(ErrNoExif)
+	log.Panic(exif.ErrNoExif)
 
 	// Never called.
 	return nil, nil
@@ -183,7 +182,7 @@ func (cs *ChunkSlice) SetExif(ib *exif.IfdBuilder) (err error) {
 		exifChunk.Data = exifData
 		exifChunk.Length = uint32(len(exifData))
 	} else {
-		if log.Is(err, ErrNoExif) != true {
+		if log.Is(err, exif.ErrNoExif) != true {
 			log.Panic(err)
 		}
 
