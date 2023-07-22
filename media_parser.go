@@ -97,7 +97,7 @@ func (pmp *PngMediaParser) ParseBytes(data []byte) (mc riimage.MediaContext, err
 // LooksLikeFormat returns a boolean indicating whether the stream looks like a
 // PNG image.
 func (pmp *PngMediaParser) LooksLikeFormat(data []byte) bool {
-    return bytes.Compare(data[:len(PngSignature)], PngSignature[:]) == 0
+    return len(data) >= len(PngSignature) && bytes.Compare(data[:len(PngSignature)], PngSignature[:]) == 0
 }
 
 var (
